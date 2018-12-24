@@ -58,3 +58,12 @@ To sandbox python, use [CodeJail](https://github.com/edx/codejail). In your hand
 	}
 
 Then, `codejail_python` will automatically be added to the kwargs for your handler. You can then import codejail.jail_code and run `jail_code("python", code...)`. You can define multiple sandboxes and use them as in `jail_code("special-python", ...)`
+
+guesslang
+==========
+We are using guesslang to detect language of code submitted by learner. It runs as a system module and should be intalled on machine using pip3.
+
+* Make sure python3 is installed
+* Do a `sudo apt-get update`
+* Install pip for python3 `sudo apt-get install python3-pip`
+* Install guesslang `pip3 install guesslang`
