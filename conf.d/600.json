@@ -5,7 +5,7 @@
 		"AUTH": ["lms", "lms"],
 		"HANDLERS": [
 			{
-				"HANDLER": "xqueue_watcher.test_grader.TestGrader"
+				"HANDLER": "test_grader.test_grader.TestGrader"
 			}
 		]
 	}
