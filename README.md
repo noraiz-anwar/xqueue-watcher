@@ -67,3 +67,11 @@ We are using guesslang to detect language of code submitted by learner. It runs 
 * Do a `sudo apt-get update`
 * Install pip for python3 `sudo apt-get install python3-pip`
 * Install guesslang `pip3 install guesslang`
+
+javac
+==========
+
+We will need javac to compile java code submitted by learners.
+
+* apt-get install default-jdk
+
