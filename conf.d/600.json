@@ -2,7 +2,7 @@
 	"test-pull": {
 		"SERVER": "http://obvious.arbisoft.com:18040",
 		"CONNECTIONS": 1,
-		"AUTH": ["lms", "lms"],
+		"AUTH": ["lms", "password"],
 		"HANDLERS": [
 			{
 				"HANDLER": "test_grader.test_grader.TestGrader"

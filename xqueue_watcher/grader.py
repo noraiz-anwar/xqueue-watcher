@@ -56,29 +56,48 @@ class Grader(object):
 """
 
     results_correct_template = u"""
-  <div class="result-output result-correct">
-    <h4>{short-description}</h4>
-    <pre>{long-description}</pre>
-    <dl>
-    <dt>Output:</dt>
-    <dd class="result-actual-output">
-       <pre>{actual-output}</pre>
-       </dd>
-    </dl>
-  </div>
+      <div class="result-output result-correct">
+        <h4>{short-description}</h4>
+        <div style="width: calc(50% - 10px); display: inline-block;">
+            <dt>Program Output:</dt>
+            <dl>
+                <dd class="result-actual-output"  style="margin-left: 0;">
+                   <pre style="white-space: no-wrap;">{actual-output}</pre>
+                </dd>
+            </dl>   
+        </div>
+        <div style="width: calc(50% - 10px); display: inline-block;">
+            <dt>Expected Output:</dt>
+            <dl>
+                <dd style="margin-left: 0;">
+                    <pre style="white-space: no-wrap;">{expected-output}</pre>
+                </dd>
+            </dl>        
+        </div>
+      </div>
 """
 
     results_incorrect_template = u"""
-  <div class="result-output result-incorrect">
-    <h4>{short-description}</h4>
-    <pre>{long-description}</pre>
-    <dl>
-    <dt>Your output:</dt>
-    <dd class="result-actual-output"><pre>{actual-output}</pre></dd>
-    <dt>Correct output:</dt>
-    <dd><pre>{expected-output}</pre></dd>
-    </dl>
-  </div>
+      <div class="result-output result-incorrect">
+        <h4>{short-description}</h4>
+        <div style="width: calc(50% - 10px); display: inline-block;">
+            <dt>Program Output:</dt>
+            <dl>
+        
+            <dd class="result-actual-output"  style="margin-left: 0;">
+               <pre style="white-space: no-wrap;">{actual-output}</pre>
+             </dd>
+        </dl>   
+        </div>
+        <div style="width: calc(50% - 10px); display: inline-block;">
+            <dt>Correct Output:</dt>
+            <dl>
+                <dd style="margin-left: 0;">
+                    <pre style="white-space: no-wrap;">{expected-output}</pre>
+                </dd>
+            </dl>        
+        </div>
+      </div>
 """
 
     def __init__(self, grader_root='/tmp/', fork_per_item=True, logger_name=__name__):
@@ -119,6 +138,8 @@ class Grader(object):
             body = json.loads(body)
             student_response = body['student_response']
             payload = body['grader_payload']
+            student_info = body['student_info']
+
             try:
                 grader_config = json.loads(payload)
             except ValueError as err:
@@ -129,7 +150,8 @@ class Grader(object):
                 self.log.debug("error parsing: '{0}' -- {1}".format(payload, err))
                 raise
 
-            self.log.debug("Processing submission, grader payload: {0}".format(payload))
+            grader_config['is_staff'] = json.loads(student_info)['is_staff']
+            self.log.debug("Processing submission, grader payload: {0}".format(grader_config))
             relative_grader_path = grader_config['grader']
             grader_path = (self.grader_root / relative_grader_path).abspath()
             start = time.time()
@@ -138,9 +160,11 @@ class Grader(object):
             statsd.histogram('xqueuewatcher.grading-time', time.time() - start)
 
             # Make valid JSON message
-            reply = {'correct': results['correct'],
-                     'score': results['score'],
-                     'msg': self.render_results(results)}
+            reply = {}
+            for key in results.keys():
+                reply[key] = {'correct': results[key]['correct'],
+                     'score': results[key]['score'],
+                     'msg': self.render_results(results[key])}
 
             statsd.increment('xqueuewatcher.replies (non-exception)')
         except Exception as e:
@@ -162,6 +186,12 @@ class Grader(object):
                 template = self.results_correct_template
             else:
                 template = self.results_incorrect_template
+
+            result['actual-output'].replace('\n', '<br />')
+            result['actual-output'] = result['actual-output'].replace(' ', '&nbsp;')
+            result['actual-output'] = result['actual-output'].replace('\n', '<br />')
+            result['expected-output'] = result['expected-output'].replace(' ', '&nbsp;')
+            result['expected-output'] = result['expected-output'].replace('\n', '<br />')
             output += template.format(**result)
 
         errors = format_errors(results['errors'])

@@ -101,19 +101,33 @@ def compare_outputs(actual_output, expected_output_file):
     any whitespaces at the ends. Raises Exception if outputs do not match
     otherwise returns response of correct answer
     """
-    expected_output = open(expected_output_file, 'r').read().strip().split('\n')
-    actual_output = actual_output.strip().split('\n')
+    expected_output = open(expected_output_file, 'r').read().strip()
+    actual_output = actual_output.strip()
 
-    if actual_output != expected_output:
-        raise Exception('Test cases failed.')
+    expected_output_splited = expected_output.split('\n')
+    actual_output_splited = actual_output.split('\n')
+
+    if actual_output_splited != expected_output_splited:
+        return {
+            'correct': False,
+            'score': 0,
+            'errors': [],
+            'tests': [["", "", False, expected_output, actual_output]]
+        }
     else:
         return {
             'correct': True,
             'score': 1,
             'errors': [],
-            'tests': []
+            'tests': [["", "", True, expected_output, actual_output]]
         }
 
+def run_test_cases(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, timeout):
+    # Run Sample Test Case
+    try:
+        return execute_code(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, timeout)
+    except Exception as e:
+        return respond_with_error(e.message)
 
 class TestGrader(Grader):
     SECRET_DATA_DIR = "test_grader/secret_data/"
@@ -121,24 +135,26 @@ class TestGrader(Grader):
 
     def grade(self, grader_path, grader_config, student_response):
 
-        # create input and output file name from problem name
-        input_file_argument = ' {0}{1}.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
-        expected_output_file = '{0}{1}.out'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
-
         code_file_name = "code_" + str(int(time.time()))
         code_file_path = TestGrader.TMP_DATA_DIR + code_file_name
 
         try:
             lang, student_response = detect_code_language(student_response, code_file_name)
-
             full_code_file_name = '{0}.{1}'.format(code_file_path, lang)
             write_code_file(student_response, full_code_file_name)
-
-            output = execute_code(
-                lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, grader_config['timeout']
-            )
-
-            return compare_outputs(output, expected_output_file)
-
         except Exception as exc:
             return respond_with_error(exc.message)
+
+        response = {}
+        for test_case in ["sample", "staff"]:
+            # create input and output file name from problem name
+            if test_case == "sample":
+                input_file_argument = ' {0}{1}-sample.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
+                expected_output_file = '{0}{1}-sample.out'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
+            else:
+                input_file_argument = ' {0}{1}.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
+                expected_output_file = '{0}{1}.out'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
+
+            output = run_test_cases(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, grader_config['timeout'])
+            response[test_case] = compare_outputs(output, expected_output_file)
+        return response
