@@ -2,7 +2,7 @@ from xqueue_watcher.grader import Grader
 import subprocess
 import time
 import re
-
+import os
 
 def run_as_subprocess(cmd, compiling=False, running_code=False, timeout=None):
     """
@@ -59,7 +59,6 @@ def execute_code(lang, code_file_name, code_full_file_name, code_file_path, inpu
 
     else:
         raise Exception
-
     return output
 
 
@@ -122,10 +121,11 @@ def compare_outputs(actual_output, expected_output_file):
             'tests': [["", "", True, expected_output, actual_output]]
         }
 
-def run_test_cases(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, timeout):
+def run_test_cases(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, expected_output_file, timeout):
     # Run Sample Test Case
     try:
-        return execute_code(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, timeout)
+        output = execute_code(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, timeout)
+        return compare_outputs(output, expected_output_file)
     except Exception as e:
         return respond_with_error(e.message)
 
@@ -145,16 +145,24 @@ class TestGrader(Grader):
         except Exception as exc:
             return respond_with_error(exc.message)
 
-        response = {}
-        for test_case in ["sample", "staff"]:
-            # create input and output file name from problem name
-            if test_case == "sample":
-                input_file_argument = ' {0}{1}-sample.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
-                expected_output_file = '{0}{1}-sample.out'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
-            else:
-                input_file_argument = ' {0}{1}.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
-                expected_output_file = '{0}{1}.out'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
+        sample_input_file_argument = ' {0}{1}-sample.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
+        sample_expected_output_file = '{0}{1}-sample.out'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
+        input_file_argument = ' {0}{1}.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
+        expected_output_file = '{0}{1}.out'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
 
-            output = run_test_cases(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, grader_config['timeout'])
-            response[test_case] = compare_outputs(output, expected_output_file)
-        return response
+        sample_test_case_result = run_test_cases(lang, code_file_name, full_code_file_name, code_file_path, sample_input_file_argument, sample_expected_output_file, grader_config['timeout'])
+        secret_test_case_result = run_test_cases(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, expected_output_file, grader_config['timeout'])
+
+        sample_test_case_result["tests"][0].append("sample")
+        secret_test_case_result["tests"][0].append("staff")
+
+        sample_test_case_result["tests"].append(secret_test_case_result["tests"][0])
+
+        if os.path.exists(full_code_file_name):
+            os.remove(full_code_file_name)
+        if os.path.exists(code_file_name + ".class"):
+            os.remove(code_file_name + ".class")
+        if os.path.exists(code_file_name + ".out"):
+            os.remove(code_file_name + ".out")
+
+        return sample_test_case_result
