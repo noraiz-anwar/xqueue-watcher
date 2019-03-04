@@ -1,0 +1,62 @@
+[
+    {
+        "lat": 31.5217706, 
+        "lon": 74.3787257, 
+        "id": 0, 
+        "address": "Tufail Rd, Falcon Complex, Lahore, Punjab, Pakistan"
+    }, 
+    {
+        "lat": 31.5221738, 
+        "lon": 74.3481167, 
+        "id": 1, 
+        "address": "Service Rd, Block K Gulberg 2, Lahore, Punjab, Pakistan"
+    }, 
+    {
+        "lat": 31.5464802, 
+        "lon": 74.3798105, 
+        "id": 2, 
+        "address": "Dhaka Rd, Saddar Town, Lahore, Punjab, Pakistan"
+    }, 
+    {
+        "lat": 31.5488371, 
+        "lon": 74.4011715, 
+        "id": 3, 
+        "address": "Zarrar Shaheed Road, Al-Faisal Town, Lahore, Punjab, Pakistan"
+    }, 
+    {
+        "lat": 31.5013538, 
+        "lon": 74.3662136, 
+        "id": 4, 
+        "address": "Masood Anwari Rd, Extension Cavalry Ground, Lahore, Punjab, Pakistan"
+    }, 
+    {
+        "lat": 31.4502751, 
+        "lon": 74.2707592, 
+        "id": 5, 
+        "address": "Service Rd, Block R3 Block R 3 Phase 2 Johar Town, Lahore, Punjab, Pakistan"
+    }, 
+    {
+        "lat": 31.45705, 
+        "lon": 74.328904, 
+        "id": 6, 
+        "address": "Kacha Jail Rd Flyover, Quaid-e-Azam Industrial Estate Quaid e Azam Industrial Estate, Lahore, Punjab, Pakistan"
+    }, 
+    {
+        "lat": 31.5028243, 
+        "lon": 74.3483301, 
+        "id": 7, 
+        "address": "C 8, Theh Block J Gulberg III, Lahore, Punjab, Pakistan"
+    }, 
+    {
+        "lat": 31.5425057, 
+        "lon": 74.3003764, 
+        "id": 8, 
+        "address": "Sarhandi Rd, Samanabad Town, Lahore, Punjab 54000, Pakistan"
+    }, 
+    {
+        "lat": 31.5582052, 
+        "lon": 74.3049366, 
+        "id": 9, 
+        "address": "Lower Mall, Mazang, Lahore, Punjab 54000, Pakistan"
+    }
+]

@@ -1,0 +1,14 @@
+[
+    {
+        "lat": 31.5217706, 
+        "lon": 74.3787257, 
+        "id": 0, 
+        "address": "Tufail Rd, Falcon Complex, Lahore, Punjab, Pakistan"
+    }, 
+    {
+        "lat": 31.5221738, 
+        "lon": 74.3481167, 
+        "id": 1, 
+        "address": "Service Rd, Block K Gulberg 2, Lahore, Punjab, Pakistan"
+    }
+]
