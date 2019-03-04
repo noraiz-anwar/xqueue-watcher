@@ -10,6 +10,7 @@ def run_as_subprocess(cmd, compiling=False, running_code=False, timeout=None):
     process after the timeout period has passed. compiling and running code flags
     helps to return related message in exception
     """
+
     if timeout:
         cmd = 'timeout --signal=SIGKILL {0} {1}'.format(timeout, cmd)
 
@@ -18,11 +19,11 @@ def run_as_subprocess(cmd, compiling=False, running_code=False, timeout=None):
     ).communicate()
 
     if error and compiling:
-        raise Exception('Compilation error occurred.')
+        raise Exception(error)
     elif error and running_code and 'Killed' in error:
         raise Exception('Time limit exceeded.')
     elif error and running_code:
-        raise Exception('Runtime or Syntax error occurred.')
+        raise Exception(error)
 
     return output
 
@@ -44,12 +45,13 @@ def execute_code(lang, code_file_name, code_full_file_name, code_file_path, inpu
     compiles the code, runs the code for python, java and c++ and returns output of the code
     """
     if lang == 'py':
-        output = run_as_subprocess('python ' + code_full_file_name + input_file, running_code=True, timeout=timeout)
+        output = run_as_subprocess('python3 ' + code_full_file_name + input_file, running_code=True, timeout=timeout)
 
     elif lang == 'java':
-        run_as_subprocess('javac ' + code_full_file_name, compiling=True)
+        print 'javac -cp {0} {1}'.format(TestGrader.SECRET_DATA_DIR + "json-simple-1.1.1.jar", code_full_file_name)
+        run_as_subprocess('javac -cp {0} {1}'.format(TestGrader.SECRET_DATA_DIR + "json-simple-1.1.1.jar", code_full_file_name), compiling=True)
         output = run_as_subprocess(
-            'java -cp {0} {1}{2}'.format(TestGrader.TMP_DATA_DIR, code_file_name, input_file),
+            'java -cp {0} {1}{2}'.format(TestGrader.TMP_DATA_DIR + ":" + TestGrader.SECRET_DATA_DIR + "json-simple-1.1.1.jar", code_file_name, input_file),
             running_code=True, timeout=timeout
         )
 
@@ -153,10 +155,10 @@ class TestGrader(Grader):
         sample_test_case_result = run_test_cases(lang, code_file_name, full_code_file_name, code_file_path, sample_input_file_argument, sample_expected_output_file, grader_config['timeout'])
         secret_test_case_result = run_test_cases(lang, code_file_name, full_code_file_name, code_file_path, input_file_argument, expected_output_file, grader_config['timeout'])
 
-        sample_test_case_result["tests"][0].append("sample")
-        secret_test_case_result["tests"][0].append("staff")
-
-        sample_test_case_result["tests"].append(secret_test_case_result["tests"][0])
+        if sample_test_case_result["tests"]:
+            sample_test_case_result["tests"][0].append("sample")
+            secret_test_case_result["tests"][0].append("staff")
+            sample_test_case_result["tests"].append(secret_test_case_result["tests"][0])
 
         if os.path.exists(full_code_file_name):
             os.remove(full_code_file_name)
