@@ -44,7 +44,6 @@ def execute_code(lang, code_file_name, code_full_file_name, code_file_path, inpu
     """
     compiles the code, runs the code for python, java and c++ and returns output of the code
     """
-    print lang
     if lang == 'py':
         output = run_as_subprocess('python3 ' + code_full_file_name + input_file, running_code=True, timeout=timeout)
 
@@ -148,6 +147,7 @@ class TestGrader(Grader):
         except Exception as exc:
             return respond_with_error(exc.message)
 
+        print lang
         sample_input_file_argument = ' {0}{1}-sample.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
         sample_expected_output_file = '{0}{1}-sample.out'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
         input_file_argument = ' {0}{1}.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
