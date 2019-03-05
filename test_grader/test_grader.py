@@ -57,7 +57,7 @@ def execute_code(lang, code_file_name, code_full_file_name, code_file_path, inpu
 
     elif lang == 'cpp':
         run_as_subprocess('g++ ' + code_full_file_name + ' -o ' + code_file_path, compiling=True)
-        output = run_as_subprocess('./' + code_file_path + input_file, running_code=True, timeout=timeout)
+        output = run_as_subprocess('./' + code_file_path + " " + input_file, running_code=True, timeout=timeout)
 
     else:
         raise Exception
@@ -72,6 +72,9 @@ def detect_code_language(student_response, code_file_name):
     LIMIT: Expects only one public class in Java solution
     """
     output = run_as_subprocess("echo '" + student_response + "' | guesslang")
+
+    if 'Python' not in output and 'Java' not in output and 'C++' not in output:
+        output = student_response.split("\n")[0]
 
     if 'Python' in output:
         lang = "py"
@@ -147,7 +150,6 @@ class TestGrader(Grader):
         except Exception as exc:
             return respond_with_error(exc.message)
 
-        print lang
         sample_input_file_argument = ' {0}{1}-sample.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
         sample_expected_output_file = '{0}{1}-sample.out'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
         input_file_argument = ' {0}{1}.in'.format(self.SECRET_DATA_DIR, grader_config['problem_name'])
